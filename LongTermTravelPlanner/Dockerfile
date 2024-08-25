@@ -1,0 +1,28 @@
+FROM python:3.11-slim
+
+# 작업 디렉토리 설정
+WORKDIR /app
+
+# 필수 패키지 및 TensorFlow 의존성 설치
+RUN apt-get update \
+    && apt-get install -y \
+    gcc \
+    build-essential \
+    pkg-config \
+    libhdf5-dev \
+    libssl-dev \
+    libffi-dev \
+    libatlas-base-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# requirements.txt 파일 복사
+COPY requirements.txt .
+
+# Python 패키지 설치
+RUN pip install --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
+
+# 애플리케이션 소스 코드 복사
+COPY . .
+
