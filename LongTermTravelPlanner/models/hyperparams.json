@@ -1,0 +1,10 @@
+{
+    "epochs": 50,
+    "batch_size": 32,
+    "learning_rate": 0.0001,
+    "optimizer": "adam",
+    "loss": "sparse_categorical_crossentropy",
+    "num_classes": 228,
+    "mean_recall": 0.3509402323631573,
+    "top_k": 8
+}
