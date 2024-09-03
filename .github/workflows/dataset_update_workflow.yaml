@@ -9,7 +9,7 @@ on:
       - "LongTermTravelPlanner/**"  # data 브랜치 내에서 data 디렉토리의 파일이 변경될 때만 트리거
 
 jobs:
-  retrain-and-build:
+  retrain_model:
     runs-on: ubuntu-latest
 
     steps:
@@ -28,5 +28,5 @@ jobs:
 
       - name: 모델 재학습 및 평가
         run: |
-          python LongTermTravel/src/train.py  # 모델 재학습 스크립트 실행
+          python LongTermTravelPlanner/src/train.py  # 모델 재학습 스크립트 실행
 
