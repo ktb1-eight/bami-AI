@@ -3,6 +3,7 @@ on:
     branches:
       - main
       - data/*
+      - feature/cicd
   workflow_dispatch:
 
 jobs:
