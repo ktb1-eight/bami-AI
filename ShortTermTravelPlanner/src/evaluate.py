@@ -1,7 +1,7 @@
-from utils import process_user_input, filter_and_merge, predict_recommendations
+from src.utils import process_user_input, filter_and_merge, predict_recommendations
 from typing import Dict, List, Any
 import pandas as pd
-
+import os
 def main(user_input: Dict[str, Any], model_path: str, info_path: str) -> List[str]:
     """
     사용자의 입력을 받아 여행지 추천을 수행하는 함수.
@@ -50,8 +50,8 @@ if __name__ == "__main__":
         'REL_CD_Categorized': '혼자',
     }
     
-    model_path = '../models/catboost_model.pkl'
-    info_path = '../data/attraction_info.csv'
+    model_path = os.path.join(os.getcwd(),'models/catboost_model.pkl')
+    info_path = os.path.join(os.getcwd(),'data/attraction_info.csv')
     
     recommendations = main(user_input, model_path, info_path)
     print(f"추천 여행지: {recommendations}")

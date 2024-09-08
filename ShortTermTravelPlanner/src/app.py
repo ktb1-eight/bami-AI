@@ -4,16 +4,17 @@ from typing import List
 import pickle
 import pandas as pd
 # 필요한 함수들을 import (process_user_input, filter_and_merge, predict_recommendations)
-from utils import process_user_input, filter_and_merge, predict_recommendations
+from src.utils import process_user_input, filter_and_merge, predict_recommendations
 # evalutae.py 의 main 함수 가져오기
-from evaluate import main
+from src.evaluate import main
+import os
 
 
 app = FastAPI()
 
 # 모델 및 데이터 파일 경로
-model_path = '../models/catboost_model.pkl'
-info_path = '../data/attraction_info.csv'
+model_path = os.path.join(os.getcwd(),'models/catboost_model.pkl')
+info_path = os.path.join(os.getcwd(),'data/attraction_info.csv')
 
 # 사용자 입력을 위한 Pydantic 모델 정의
 class UserInput(BaseModel):
