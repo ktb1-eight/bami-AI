@@ -30,6 +30,7 @@ def filter_and_merge(user_df: pd.DataFrame, info: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: 모델 최종 입력 데이터
     """
+
     sido, gungu = user_df['SIDO'][0], user_df['GUNGU'][0]
     info_df = info[(info['SIDO'] == sido) & (info['GUNGU'] == gungu)].reset_index(drop=True)
     info_df.drop(columns=['SIDO', 'GUNGU'], inplace=True)
@@ -38,7 +39,7 @@ def filter_and_merge(user_df: pd.DataFrame, info: pd.DataFrame) -> pd.DataFrame:
     user_info_repeated = pd.concat([user_df] * len(info_df), ignore_index=True)
     final_df = pd.concat([user_info_repeated, info_df], axis=1)
     final_df.drop_duplicates(subset=['VISIT_AREA_NM'], inplace=True)
-    
+
     return final_df
 
 def predict_recommendations(final_df: pd.DataFrame, model_path: str) -> pd.DataFrame:
@@ -54,6 +55,6 @@ def predict_recommendations(final_df: pd.DataFrame, model_path: str) -> pd.DataF
     
     # 모델에 맞는 열 순서로 정렬
     final_df = final_df[model.feature_names_]
-    final_df['y_pred'] = model.predict(final_df)
+    final_df.loc[:, 'y_pred'] = model.predict(final_df)
     
     return final_df
