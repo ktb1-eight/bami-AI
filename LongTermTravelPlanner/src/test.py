@@ -57,7 +57,7 @@ user_scaled = scaler.transform(user_df)
 preds = model.predict(user_scaled)
 
 # 각 출력에 대해 상위 8개의 선택과 확률을 가져옴
-top_k = 200
+top_k = 8
 top_k_indices = np.argsort(-preds[0], axis=1)[:, :top_k]
 top_k_probs = -np.sort(-preds[0], axis=1)[:, :top_k]
 

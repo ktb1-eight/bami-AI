@@ -1,0 +1,32 @@
+name: Retrain Model on Dataset Changes
+
+on:
+  push:
+    branches:
+      - data
+      - experiment
+    paths:
+      - "LongTermTravelPlanner/**"  # data 브랜치 내에서 data 디렉토리의 파일이 변경될 때만 트리거
+
+jobs:
+  retrain_model:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 리포지토리 체크아웃
+        uses: actions/checkout@v2
+
+      - name: Python 설정
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.11'  # 사용할 Python 버전
+
+      - name: 의존성 설치
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r LongTermTravelPlanner/requirements.txt  # 요구 사항 파일을 기반으로 패키지 설치
+
+      - name: 모델 재학습 및 평가
+        run: |
+          python LongTermTravelPlanner/src/train.py  # 모델 재학습 스크립트 실행
+
