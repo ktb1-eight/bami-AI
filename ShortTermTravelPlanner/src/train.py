@@ -2,7 +2,6 @@ import json
 import pandas as pd
 from catboost import CatBoostRegressor
 
-
 # 상수 설정
 EARLY_STOPPING_ROUNDS = 50
 N = 3
@@ -13,7 +12,6 @@ test = pd.read_csv('../data/attraction_test_data.csv')
 
 with open('../models/params.json', 'r') as json_file:
     loaded_params = json.load(json_file)
-
 
 
 # NaN 값 제거 및 인덱스 리셋

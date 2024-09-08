@@ -4,9 +4,10 @@ from typing import List
 import pickle
 import pandas as pd
 # 필요한 함수들을 import (process_user_input, filter_and_merge, predict_recommendations)
-from src.utils import process_user_input, filter_and_merge, predict_recommendations
+from utils import process_user_input, filter_and_merge, predict_recommendations
 # evalutae.py 의 main 함수 가져오기
-from src.evaluate import main
+from evaluate import main
+
 
 app = FastAPI()
 
@@ -16,10 +17,8 @@ info_path = '../data/attraction_info.csv'
 
 # 사용자 입력을 위한 Pydantic 모델 정의
 class UserInput(BaseModel):
-    
-    ADDRESS: str
-    # SIDO: str
-    # GUNGU: str
+    SIDO: str
+    GUNGU: str
     MVMN_NM: str # 이동수단
     GENDER: str # 성별
     AGE_GRP: int # 나이
@@ -37,7 +36,6 @@ class UserInput(BaseModel):
 @app.post("/ai/trip/short", response_model = List[str]) # List[str] : API가 반환할 응답의 타입
 def get_recommendations(user_input: UserInput):
     try:
-        print(user_input)
         # 입력 데이터를 처리하는 부분
         user_df = user_input.dict()
         
