@@ -1,4 +1,4 @@
-from utils import process_user_input, filter_and_merge, predict_recommendations
+from src.utils import process_user_input, filter_and_merge, predict_recommendations
 from typing import Dict, List, Any
 import pandas as pd
 

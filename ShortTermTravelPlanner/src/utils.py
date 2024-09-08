@@ -10,6 +10,7 @@ def process_user_input(user_input: Dict[str, Any]) -> pd.DataFrame:
     Returns:
         pd.DataFrame: 전처리된 사용자 입력 데이터프레임
     """
+    
     user_df = pd.DataFrame([user_input])
     
     # 범주형 변수들 처리
