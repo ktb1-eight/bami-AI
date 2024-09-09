@@ -7,7 +7,7 @@ import numpy as np
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 import tensorflow as tf
 from tensorflow.keras import regularizers
-from data_processing_utils import set_seed  # set_seed 함수 가져오기
+from data_processing_utils import set_seed
 
 # 시드 설정
 set_seed(42)
@@ -21,13 +21,18 @@ parser.add_argument('--learning_rate', type=float, default=0.001, help='Learning
 parser.add_argument('--top_k', type=int, default=8, help='Top K predictions for evaluation')
 args = parser.parse_args()
 
+# 환경변수로 경로 설정 (환경별로 다르게 설정 가능)
+data_base_path = os.environ.get('DATA_PATH', '../data/processed')
+logs_base_path = os.environ.get('LOGS_PATH', '../logs')
+models_base_path = os.environ.get('MODELS_PATH', '../models')
+
 # logs 폴더 생성 (존재하지 않으면)
-log_dir = '../logs'
+log_dir = os.path.abspath(logs_base_path)
 if not os.path.exists(log_dir):
     os.makedirs(log_dir)
 
 # 모델 및 하이퍼파라미터 저장 폴더 생성 (존재하지 않으면)
-model_dir = '../models'
+model_dir = os.path.abspath(models_base_path)
 if not os.path.exists(model_dir):
     os.makedirs(model_dir)
 
@@ -38,9 +43,13 @@ log_filepath = os.path.join(log_dir, args.log_filename)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', filename=log_filepath, filemode='w')
 logger = logging.getLogger()
 
-# 데이터 로드
-train_data = pd.read_csv('../data/processed/processed_train_data.csv')
-test_data = pd.read_csv('../data/processed/processed_test_data.csv')
+# 절대 경로로 변환
+train_data_path = os.path.abspath(os.path.join(data_base_path, 'processed_train_data.csv'))
+test_data_path = os.path.abspath(os.path.join(data_base_path, 'processed_test_data.csv'))
+
+# CSV 파일 읽기
+train_data = pd.read_csv(train_data_path)
+test_data = pd.read_csv(test_data_path)
 
 # 범주형 변수 인코딩
 label_encoders = {}
