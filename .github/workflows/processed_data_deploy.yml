@@ -43,6 +43,9 @@ jobs:
           S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
         run: |
           python LongTermTravelPlanner/src/preprocess.py
+      - name: Verify processed train data file exists
+        run: |
+          ls -al LongTermTravelPlanner/data/processed/processed_train_data.csv
 
       # 6. S3로 전처리된 파일 업로드
       - name: Upload processed data to S3
