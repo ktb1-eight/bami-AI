@@ -29,8 +29,17 @@ def main(user_input: Dict[str, Any], model_path: str, info_path: str) -> List[st
     final_df = predict_recommendations(final_df, model_path)
     
     # 상위 10개 추천지 반환
-    top_10_recommendations = final_df.sort_values(by='y_pred', ascending=False).head(10)['VISIT_AREA_NM'].tolist()
-    return top_10_recommendations
+    top_10_recommendations = final_df.nlargest(10, 'y_pred')['VISIT_AREA_NM']
+
+    # 여행지 정보 필터링 및 매핑
+    info = info.rename(columns={'VISIT_AREA_NM': 'name', 'ROAD_NM_ADDR': 'city', 
+                                'LOTNO_ADDR': 'address', 'X_COORD': 'longitude', 'Y_COORD': 'latitude'})
+
+    # Vectorized lookup for travel recommendations
+    places = info[info['name'].isin(top_10_recommendations)][['name', 'city', 'address', 'longitude', 'latitude']]
+
+    # Convert to list of dictionaries
+    return places.to_dict(orient='records')
 
 if __name__ == "__main__":
     user_input = {
