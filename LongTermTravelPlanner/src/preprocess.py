@@ -27,9 +27,9 @@ def load_and_process_data(bucket_name: str) -> pd.DataFrame:
     :return: 전처리된 데이터프레임
     """
     # S3에서 데이터 로드
-    tm_df = load_data_from_s3(bucket_name, 'LongTermDataFrame/data/여행객Master.csv')
-    travel_df = load_data_from_s3(bucket_name, 'LongTermDataFrame/data/여행.csv')
-    comp_df = load_data_from_s3(bucket_name, 'LongTermDataFrame/data/동반자정보.csv')
+    tm_df = load_data_from_s3(bucket_name, 'LongTermDataFrame/data/raw/train/여행객Master.csv')
+    travel_df = load_data_from_s3(bucket_name, 'LongTermDataFrame/data/raw/train/여행.csv')
+    comp_df = load_data_from_s3(bucket_name, 'LongTermDataFrame/data/raw/train/동반자정보.csv')
 
     # 데이터 병합 및 전처리
     merged_df = preprocess_data(tm_df, travel_df, comp_df)
