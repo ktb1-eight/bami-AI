@@ -39,5 +39,5 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
           S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
         run: |
-          aws s3 cp LongTermTravelPlanner/data/processed/processed_train_data.csv s3://$S3_BUCKET_NAME/processed/processed_train_data.csv
-          aws s3 cp LongTermTravelPlanner/data/processed/processed_test_data.csv s3://$S3_BUCKET_NAME/processed/processed_test_data.csv
+          aws s3 cp LongTermTravelPlanner/data/processed/processed_train_data.csv s3://$S3_BUCKET_NAME/LongTermDataFrame/data/processed/processed_train_data.csv
+          aws s3 cp LongTermTravelPlanner/data/processed/processed_test_data.csv s3://$S3_BUCKET_NAME/LongTermDataFrame/data/processed/processed_test_data.csv
