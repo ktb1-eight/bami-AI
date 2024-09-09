@@ -79,15 +79,12 @@ async def predict_travel_destination(user_input: UserInput):
             sgg_info = sgg_cd_df[sgg_cd_df['SGG_CD'] == sgg_code]
             sido_nm = sgg_info['SIDO_NM'].values[0] if not sgg_info.empty else "정보 없음"
             sgg_nm = sgg_info['SGG_NM'].values[0] if not sgg_info.empty else "정보 없음"
-            results.append({
-                "rank": i + 1,
-                "sgg_code": int(sgg_code),
-                "probability": float(top_k_probs[0][i]),
-                "sido_nm": sido_nm,
-                "sgg_nm": sgg_nm
-            })
+            
+            # region의 값만 어펜드
+            results.append(f"{sido_nm} {sgg_nm}")
 
-        return {"predictions": results}
+        return results
+
     
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

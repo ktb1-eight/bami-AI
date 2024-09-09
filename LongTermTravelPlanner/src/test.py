@@ -33,15 +33,16 @@ sgg_cd_df = pd.read_csv('../config/SGG_CD.csv')
 # f000363,50,남,50,1,1,11110,50130,28710,자가용,4.0,1.0
 # 예측할 임의의 유저 데이터
 user_data = {
-    'RESIDENCE_SGG_CD': 50,
-    'GENDER': '남',
-    'AGE_GRP': 50,
-    'TRAVEL_NUM': 1,
-    'TRAVEL_MOTIVE_1': 1,
-    'MVMN_NM': '자가용',
-    'COMPANION_AGE_GRP': 4.0,
-    'REL_CD': 1.0
+    "RESIDENCE_SGG_CD": 50,
+    "GENDER": "남",
+    "AGE_GRP": 50,
+    "TRAVEL_NUM": 1,
+    "TRAVEL_MOTIVE_1": 1,
+    "MVMN_NM": "자가용",
+    "COMPANION_AGE_GRP": 4.0,
+    "REL_CD": 1.0
 }
+
 
 # 데이터프레임으로 변환
 user_df = pd.DataFrame([user_data])
