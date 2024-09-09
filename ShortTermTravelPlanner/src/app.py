@@ -12,16 +12,17 @@ from evaluate import main
 app = FastAPI()
 
 # 모델 및 데이터 파일 경로
-model_path = '../models/catboost_model.pkl'
-info_path = '../data/attraction_info.csv'
+model_path = '/카카오테크 부트캠프/Team_Project1/bami-AI/ShortTermTravelPlanner/models/catboost_model.pkl'
+info_path = '/카카오테크 부트캠프/Team_Project1/bami-AI/ShortTermTravelPlanner/data/attraction_info.csv'
 
 # 사용자 입력을 위한 Pydantic 모델 정의
 class UserInput(BaseModel):
-    SIDO: str
-    GUNGU: str
+    LATITUDE: float
+    LONGITUDE: float
     MVMN_NM: str # 이동수단
     GENDER: str # 성별
     AGE_GRP: int # 나이
+    DAY : int
     TRAVEL_STYL_1: int
     TRAVEL_STYL_2: int
     TRAVEL_STYL_3: int
@@ -42,7 +43,11 @@ def get_recommendations(user_input: UserInput):
         print("\n")
         
         # evaluate.py의 main 함수 호출
-        recommendations = main(user_input=user_df, model_path=model_path, info_path=info_path)
+        recommendations = main(user_input=user_df, 
+                               model_path=model_path, 
+                               info_path=info_path, 
+                               latitude=user_input.LATITUDE, 
+                               longitude=user_input.LONGITUDE)
         print(recommendations)
         
         return recommendations

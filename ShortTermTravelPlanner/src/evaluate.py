@@ -34,21 +34,23 @@ def main(user_input: Dict[str, Any], model_path: str, info_path: str) -> List[st
 
 if __name__ == "__main__":
     user_input = {
-        'SIDO': '부산',
-        'GUNGU': '해운대구',
-        'MVMN_NM': '자가용',
-        'GENDER': '여',
-        'AGE_GRP': 30,
-        'TRAVEL_STYL_1': 7,
-        'TRAVEL_STYL_2': 7,
-        'TRAVEL_STYL_3': 7,
-        'TRAVEL_STYL_5': 7,
-        'TRAVEL_STYL_6': 7,
-        'TRAVEL_STYL_7': 7,
-        'TRAVEL_STYL_8': 7,
-        'TRAVEL_MOTIVE_1': 7,
-        'REL_CD_Categorized': '혼자',
-    }
+        "LATITUDE": 36.75,
+        "LONGITUDE": 127.55,
+        "MVMN_NM": "자가용",
+        "GENDER": "여성",
+        "AGE_GRP": 20,
+        "Day" : 2,
+        "TRAVEL_STYL_1": 1,
+        "TRAVEL_STYL_2": 3,
+        "TRAVEL_STYL_3": 5,
+        "TRAVEL_STYL_5": 4,
+        "TRAVEL_STYL_6": 7,
+        "TRAVEL_STYL_7": 3,
+        "TRAVEL_STYL_8": 4,
+        "TRAVEL_MOTIVE_1": 2,
+        "REL_CD_Categorized": "혼자"
+        }
+
     
     model_path = '../models/catboost_model.pkl'
     info_path = '../data/attraction_info.csv'
