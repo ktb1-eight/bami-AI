@@ -15,7 +15,7 @@ def process_user_input(user_input: Dict[str, Any]) -> pd.DataFrame:
     
     # 범주형 변수들 처리
     categorical_features = [
-        'SIDO', 'GUNGU', 'MVMN_NM', 'GENDER', 'REL_CD_Categorized', 'TRAVEL_MOTIVE_1'
+        'MVMN_NM', 'GENDER', 'REL_CD_Categorized', 'TRAVEL_MOTIVE_1'
     ]
     
     user_df[categorical_features] = user_df[categorical_features].astype(str)
