@@ -39,6 +39,7 @@ def filter_and_merge(user_df: pd.DataFrame, info: pd.DataFrame) -> pd.DataFrame:
     user_info_repeated = pd.concat([user_df] * len(info_df), ignore_index=True)
     final_df = pd.concat([user_info_repeated, info_df], axis=1)
     final_df.drop_duplicates(subset=['VISIT_AREA_NM'], inplace=True)
+    print(final_df)
 
     return final_df
 
