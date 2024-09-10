@@ -13,14 +13,20 @@ jobs:
       - name: Check out the repository
         uses: actions/checkout@v2
 
-      # SSH 접속 확인 (환경 변수를 통한 안전한 비밀키 처리)
+      # SSH 접속 확인 단계 (echo 제거)
       - name: SSH 접속 확인
         run: |
-          chmod 400 /dev/stdin
-          ssh -i /dev/stdin ubuntu@${{ secrets.EC2_HOST }} <<< "${{ secrets.SSH_PRIVATE_KEY }}"
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
+          chmod 400 private_key.pem
+          ssh -i private_key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }}
 
       # 배포 스크립트 복사 및 실행
       - name: Copy and Run deploy.sh on EC2
         run: |
-          scp -i /dev/stdin LongTermTravelPlanner/scripts/deploy.sh ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/deploy.sh <<< "${{ secrets.SSH_PRIVATE_KEY }}"
-          ssh -i /dev/stdin ubuntu@${{ secrets.EC2_HOST }} "chmod +x /home/ubuntu/deploy.sh && /home/ubuntu/deploy.sh" <<< "${{ secrets.SSH_PRIVATE_KEY }}"
+          scp -i private_key.pem -o StrictHostKeyChecking=no LongTermTravelPlanner/scripts/deploy.sh ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/deploy.sh
+          ssh -i private_key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} "chmod +x /home/ubuntu/deploy.sh && /home/ubuntu/deploy.sh"
+
+      # 보안: 비밀키 삭제
+      - name: Remove private_key.pem for security
+        run: |
+          rm -f private_key.pem
