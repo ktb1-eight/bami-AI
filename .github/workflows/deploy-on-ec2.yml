@@ -13,11 +13,6 @@ jobs:
       - name: Check out the repository
         uses: actions/checkout@v2
 
-      # EC2 호스트 키 추가 (보안 강화)
-      - name: Add EC2 Host to known_hosts
-        run: |
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
-
       # SSH 접속 확인 (환경 변수를 통한 안전한 비밀키 처리)
       - name: SSH 접속 확인
         run: |
