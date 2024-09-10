@@ -33,23 +33,21 @@ jobs:
           cd LongTermTravelPlanner
           docker build -t bami-ai:latest -f Dockerfile.prod .
 
+      # 빌드된 이미지를 기반으로 컨테이너 실행 및 테스트
       - name: Run and Test Docker Container
         run: |
           docker run -d --name test-container -p 8000:8000 bami-ai:latest
           sleep 10
           docker ps -a
+          # 로그를 출력하여 서버 상태 확인
+          docker logs test-container
+          # FastAPI POST 요청 테스트
           curl --fail -X POST http://localhost:8000/api/predict/ \
             -H "Content-Type: application/json" \
             -d '{"RESIDENCE_SGG_CD": 50, "GENDER": "남", "AGE_GRP": 50, "TRAVEL_NUM": 1, "TRAVEL_MOTIVE_1": 1, "MVMN_NM": "자가용", "COMPANION_AGE_GRP": 4.0, "REL_CD": 1.0}' || exit 1
 
-
-
-      # 테스트 성공 후 도커 이미지 태그 설정 (ECR 저장소 이름을 사용)
-      - name: Tag Docker image
+      # 컨테이너 종료 및 정리
+      - name: Clean up
         run: |
-          docker tag bami-ai:latest ${{ secrets.ECR_URI }}:latest
-
-      # ECR에 이미지 푸시
-      - name: Push Docker image to Amazon ECR
-        run: |
-          docker push ${{ secrets.ECR_URI }}:latest
+          docker stop test-container
+          docker rm test-container
