@@ -1,8 +1,7 @@
 # model_deploy.yml - 배포 전용 워크플로우
 on:
   push:
-    branches:
-      - feature/cicd  # feature/cicd 브랜치에서만 실행
+    branches:  
       - deploy/data
 
 jobs:
