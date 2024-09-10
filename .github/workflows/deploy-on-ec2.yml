@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - feature/cicd
-    paths:
-      - 'bami-AI/.github/workflows/deploy-on-ec2.yml'
-      - 'LongTermTravelPlanner/scripts/deploy.sh'
 
 jobs:
   deploy:
