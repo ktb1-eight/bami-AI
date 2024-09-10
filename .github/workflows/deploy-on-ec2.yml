@@ -13,25 +13,16 @@ jobs:
       - name: Check out the repository
         uses: actions/checkout@v2
 
-      # SSH 접속 확인 단계
-      - name: SSH 접속 확인
+      # 환경 변수 설정 (ECR URI 등)
+      - name: Set environment variables
         run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
-          chmod 400 private_key.pem
-          ssh -i private_key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }}
+          echo "ECR_URI=${{ secrets.ECR_URI }}" >> $GITHUB_ENV  # GitHub Secrets에서 가져오기
 
-      # 배포 스크립트 복사 및 실행
+      # SSH 접속 및 스크립트 실행 단계
       - name: Copy and Run deploy.sh on EC2
         run: |
-          # 스크립트 복사 로그
           echo "Copying deploy.sh to EC2 instance..."
           scp -i private_key.pem -o StrictHostKeyChecking=no LongTermTravelPlanner/scripts/deploy.sh ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/deploy.sh
           
-          # 스크립트 복사 성공 여부 확인
-          echo "Setting permissions and running deploy.sh on EC2..."
-          ssh -i private_key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} "ls -l /home/ubuntu/deploy.sh && chmod +x /home/ubuntu/deploy.sh && /home/ubuntu/deploy.sh"
-
-      # 보안: 비밀키 삭제
-      - name: Remove private_key.pem for security
-        run: |
-          rm -f private_key.pem
+          echo "Running deploy.sh on EC2..."
+          ssh -i private_key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} "chmod +x /home/ubuntu/deploy.sh && ECR_URI=${{ secrets.ECR_URI }} /home/ubuntu/deploy.sh"
