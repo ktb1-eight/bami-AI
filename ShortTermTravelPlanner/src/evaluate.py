@@ -29,7 +29,7 @@ def main(user_input: Dict[str, Any], model_path: str, info_path: str) -> List[st
     final_df = predict_recommendations(final_df, model_path)
     
     # 상위 10개 추천지 반환
-    top_10_recommendations = final_df.nlargest(10, 'y_pred')['VISIT_AREA_NM']
+    top_10_recommendations = final_df.nlargest(user_input['DAY'] * 5, 'y_pred')['VISIT_AREA_NM']
 
     # 여행지 정보 필터링 및 매핑
     info = info.rename(columns={'VISIT_AREA_NM': 'name', 'ROAD_NM_ADDR': 'city', 
@@ -59,7 +59,6 @@ if __name__ == "__main__":
         "TRAVEL_MOTIVE_1": 2,
         "REL_CD_Categorized": "혼자"
         }
-
     
     model_path = '../models/catboost_model.pkl'
     info_path = '../data/attraction_info.csv'

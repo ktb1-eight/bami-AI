@@ -34,15 +34,6 @@ def filter_and_merge(user_df: pd.DataFrame, info: pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: 모델 최종 입력 데이터
     """
 
-    # sido, gungu = user_df['SIDO'][0], user_df['GUNGU'][0]
-    # info_df = info[(info['SIDO'] == sido) & (info['GUNGU'] == gungu)].reset_index(drop=True)
-    # info_df.drop(columns=['SIDO', 'GUNGU'], inplace=True)
-
-    # # 사용자 정보를 반복하여 병합
-    # user_info_repeated = pd.concat([user_df] * len(info_df), ignore_index=True)
-    # final_df = pd.concat([user_info_repeated, info_df], axis=1)
-    # final_df.drop_duplicates(subset=['VISIT_AREA_NM'], inplace=True)
-
     cluster_centers = np.array([
         [126.51347387, 35.62922933],
         [128.58515258, 38.14180494],
@@ -68,7 +59,7 @@ def filter_and_merge(user_df: pd.DataFrame, info: pd.DataFrame) -> pd.DataFrame:
     user_info_repeated = pd.concat([user_df] * len(filtered_cluster_data), ignore_index=True)
     final_df = pd.concat([user_info_repeated, filtered_cluster_data], axis=1)
     final_df.drop_duplicates(subset=['VISIT_AREA_NM'], inplace=True)
-    final_df = final_df.drop(['LATITUDE', 'LONGITUDE', 'X_COORD', 'Y_COORD', 'ROAD_NM_ADDR', 'LOTNO_ADDR', 'Cluster', 'Day'], axis=1)
+    final_df = final_df.drop(['LATITUDE', 'LONGITUDE', 'X_COORD', 'Y_COORD', 'ROAD_NM_ADDR', 'LOTNO_ADDR', 'Cluster', 'DAY'], axis=1)
     return final_df
 
 
