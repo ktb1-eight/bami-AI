@@ -7,12 +7,7 @@ import numpy as np
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 import tensorflow as tf
 from tensorflow.keras import regularizers
-
-import wandb
-from data_processing_utils import set_seed  # set_seed 함수 가져오기
-
-
-
+from data_processing_utils import set_seed
 
 # 시드 설정
 set_seed(42)
@@ -26,23 +21,18 @@ parser.add_argument('--learning_rate', type=float, default=0.001, help='Learning
 parser.add_argument('--top_k', type=int, default=8, help='Top K predictions for evaluation')
 args = parser.parse_args()
 
-
-# W&B 초기화
-wandb.init(project="LongtermTravelRecommender", config={
-    "epochs": args.epochs,
-    "batch_size": args.batch_size,
-    "learning_rate": args.learning_rate,
-    "top_k": args.top_k,
-})
-
+# 환경변수로 경로 설정 (환경별로 다르게 설정 가능)
+data_base_path = os.environ.get('DATA_PATH', '../data/processed')
+logs_base_path = os.environ.get('LOGS_PATH', '../logs')
+models_base_path = os.environ.get('MODELS_PATH', '../models')
 
 # logs 폴더 생성 (존재하지 않으면)
-log_dir = '../logs'
+log_dir = os.path.abspath(logs_base_path)
 if not os.path.exists(log_dir):
     os.makedirs(log_dir)
 
 # 모델 및 하이퍼파라미터 저장 폴더 생성 (존재하지 않으면)
-model_dir = '../models'
+model_dir = os.path.abspath(models_base_path)
 if not os.path.exists(model_dir):
     os.makedirs(model_dir)
 
@@ -53,13 +43,16 @@ log_filepath = os.path.join(log_dir, args.log_filename)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', filename=log_filepath, filemode='w')
 logger = logging.getLogger()
 
-# 데이터 로드
-train_data = pd.read_csv('../data/processed/processed_train_data.csv')
-test_data = pd.read_csv('../data/processed/processed_test_data.csv')
+# 절대 경로로 변환
+train_data_path = os.path.abspath(os.path.join(data_base_path, 'processed_train_data.csv'))
+test_data_path = os.path.abspath(os.path.join(data_base_path, 'processed_test_data.csv'))
+
+# CSV 파일 읽기
+train_data = pd.read_csv(train_data_path)
+test_data = pd.read_csv(test_data_path)
 
 # 범주형 변수 인코딩
 label_encoders = {}
-
 for col in ['GENDER', 'MVMN_NM']:
     le = LabelEncoder()
     train_data[col] = le.fit_transform(train_data[col])
@@ -131,15 +124,6 @@ model.compile(optimizer=optimizer,
                        'output_2': 'accuracy', 
                        'output_3': 'accuracy'})
 
-# 각 출력에 대해 별도의 손실 함수와 평가 지표 설정
-model.compile(optimizer=optimizer, 
-              loss={'output_1': 'sparse_categorical_crossentropy', 
-                    'output_2': 'sparse_categorical_crossentropy', 
-                    'output_3': 'sparse_categorical_crossentropy'}, 
-              metrics={'output_1': 'accuracy', 
-                       'output_2': 'accuracy', 
-                       'output_3': 'accuracy'})
-
 # 모델 요약 정보 로그로 기록
 model.summary(print_fn=lambda x: logger.info(x))
 
@@ -151,55 +135,12 @@ class LoggingCallback(tf.keras.callbacks.Callback):
 
 logging_callback = LoggingCallback()
 
-class CustomWandbCallback(tf.keras.callbacks.Callback):
-    def __init__(self, X_train, y_train_1, y_train_2, y_train_3):
-        super(CustomWandbCallback, self).__init__()
-        self.X_train = X_train
-        self.y_train_1 = y_train_1
-        self.y_train_2 = y_train_2
-        self.y_train_3 = y_train_3
-
-    def on_epoch_end(self, epoch, logs=None):
-        # 10 에포크마다 로그 기록
-        if (epoch + 1) % 2 == 0:
-            # Gradient norm 계산
-            with tf.GradientTape() as tape:
-                # 실제 데이터를 사용하여 예측 및 손실 계산
-                y_pred = self.model(self.X_train, training=True)
-                loss = self.model.compute_loss(self.X_train, [self.y_train_1, self.y_train_2, self.y_train_3], y_pred)
-
-            grads = tape.gradient(loss, self.model.trainable_variables)
-            grad_norms = [tf.norm(grad, ord=2).numpy() for grad in grads if grad is not None]
-            mean_grad_norm = np.mean(grad_norms)
-
-            # W&B 로깅
-            wandb.log({
-                'epoch': epoch + 1,
-                'loss': logs['loss'],
-                'output_1_accuracy': logs['output_1_accuracy'],
-                'output_2_accuracy': logs['output_2_accuracy'],
-                'output_3_accuracy': logs['output_3_accuracy'],
-                'val_loss': logs['val_loss'],
-                'val_output_1_accuracy': logs['val_output_1_accuracy'],
-                'val_output_2_accuracy': logs['val_output_2_accuracy'],
-                'val_output_3_accuracy': logs['val_output_3_accuracy'],
-                'grad_norm': mean_grad_norm,
-            })
-
-# 콜백 인스턴스 생성 (훈련 데이터를 전달)
-custom_wandb_callback = CustomWandbCallback(X_train, y_train_1, y_train_2, y_train_3)
-
-
-
-
-
 # 모델 훈련
 history = model.fit(X_train, [y_train_1, y_train_2, y_train_3], 
                     epochs=args.epochs, 
                     validation_split=0.2, 
                     batch_size=args.batch_size,
-                    callbacks=[logging_callback, custom_wandb_callback])
-
+                    callbacks=[logging_callback])
 
 # top_k 값을 명령줄 인자로 받아 설정
 top_k = args.top_k
@@ -215,20 +156,14 @@ top_k_preds_3 = np.argsort(-preds[2], axis=1)[:, :top_k]
 # 상위 3개의 선호 여행지에 대한 recall 계산
 recalls = []
 for i in range(y_test_1.shape[0]):
-    # 각 샘플에 대해 모든 예측값을 확률과 함께 결합하고, 상위 8개 선택
-    combined_preds = np.concatenate([preds[0][i], preds[1][i], preds[2][i]])  # 모든 예측 확률을 하나로 결합
+    combined_preds = np.concatenate([preds[0][i], preds[1][i], preds[2][i]])
     combined_indices = np.concatenate([np.arange(num_classes), np.arange(num_classes), np.arange(num_classes)])
 
-    # 확률값에 따라 상위 8개를 선택
     top_k_indices = combined_indices[np.argsort(-combined_preds)][:top_k]
-
-    # 실제 레이블과 비교
     true_labels = [y_test_1[i], y_test_2[i], y_test_3[i]]
     recalls.append(len(set(true_labels) & set(top_k_indices)) / len(true_labels))
 
 mean_recall = np.mean(recalls)
-
-
 logger.info(f'Mean Recall: {mean_recall}')
 print(f'Mean Recall: {mean_recall}')
 
@@ -260,13 +195,12 @@ with open(hyperparams_path, 'w') as json_file:
     json.dump(hyperparams, json_file, indent=4)
 logger.info(f'Hyperparameters and training performance saved to {hyperparams_path}')
 
-# LabelEncoder 클래스 저장 (각 범주형 변수에 대해)
+# LabelEncoder 클래스 저장
 np.save(os.path.join(model_dir, 'label_classes_gender.npy'), label_encoders['GENDER'].classes_)
 np.save(os.path.join(model_dir, 'label_classes_mvmn_nm.npy'), label_encoders['MVMN_NM'].classes_)
 
 # 타깃 라벨 인코더 저장
 np.save(os.path.join(model_dir, 'label_classes.npy'), label_encoder.classes_)
-
 
 # 스케일러 저장
 np.save(os.path.join(model_dir, 'scaler_mean.npy'), scaler.mean_)
