@@ -1,0 +1,27 @@
+name: Deploy Docker Container on EC2
+
+on:
+  workflow_dispatch:  # 수동으로 배포 워크플로우 실행
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # EC2 인스턴스에 SSH로 연결하여 Docker 컨테이너 실행
+      - name: SSH and Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.3
+        with:
+          host: ${{ secrets.EC2_HOST }}  # EC2 인스턴스 퍼블릭 IP
+          username: ec2-user  # 기본 사용자
+          key: ${{ secrets.SSH_PRIVATE_KEY }}  # 저장된 프라이빗 키 참조
+          port: 22
+          script: |
+            # AWS ECR에서 Docker 이미지 풀
+            aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ secrets.ECR_URI }}
+            docker pull ${{ secrets.ECR_URI }}:latest
+            # 기존 컨테이너 종료 및 삭제
+            docker stop bami-ai || true
+            docker rm bami-ai || true
+            # 새로운 컨테이너 실행
+            docker run -d --name bami-ai -p 8000:8000 ${{ secrets.ECR_URI }}:latest
