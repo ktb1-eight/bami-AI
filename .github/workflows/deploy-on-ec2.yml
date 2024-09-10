@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - feature/cicd  # feature/cicd 브랜치에서만 트리거
-    paths:
-      - 'bami-AI/.github/workflows/deploy-on-ec2.yml'  # 이 파일이 변경될 때만 실행
-      - 'LongTermTravelPlanner/scripts/deploy.sh'  # 이 파일이 변경될 때도 실행
 
 jobs:
   deploy:
