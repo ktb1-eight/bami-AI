@@ -1,0 +1,45 @@
+name: Docker Build and Test
+
+# main 브랜치에 push가 발생할 때 워크플로우가 실행됨
+on:
+  push:
+    branches:
+      - main
+      - feature/cicd
+
+# 도커 빌드 및 테스트 작업 정의
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 리포지토리 체크아웃
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      # 도커를 설치하지 않았다면 설치
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      # 도커 빌드
+      - name: Build Docker image
+        run: |
+          cd LongTermTravelPlanner
+          docker build -t bami-long:latest -f Dockerfile.prod .
+
+      # 빌드가 성공했는지 확인하기 위해 컨테이너를 실행하고 테스트
+      - name: Run and Test Docker Container
+        run: |
+          docker run -d --name test-container -p 8000:8000 myapp:latest
+          # 컨테이너 실행 후 10초 대기
+          sleep 10
+          # 컨테이너가 정상적으로 실행되고 있는지 확인
+          docker ps -a
+          # 컨테이너 상태 확인
+          curl http://localhost:8000
+
+      # 도커 컨테이너 종료 및 정리
+      - name: Clean up
+        run: |
+          docker stop test-container
+          docker rm test-container
