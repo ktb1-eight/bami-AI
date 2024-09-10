@@ -30,7 +30,7 @@ jobs:
       # 빌드가 성공했는지 확인하기 위해 컨테이너를 실행하고 테스트
       - name: Run and Test Docker Container
         run: |
-          docker run -d --name test-container -p 8000:8000 myapp:latest
+          docker run -d --name test-container -p 8000:8000 bami-long:latest
           # 컨테이너 실행 후 10초 대기
           sleep 10
           # 컨테이너가 정상적으로 실행되고 있는지 확인
