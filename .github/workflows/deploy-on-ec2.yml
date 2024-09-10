@@ -13,10 +13,16 @@ jobs:
       - name: Check out the repository
         uses: actions/checkout@v2
 
+      # SSH 프라이빗 키 설정 (GitHub Secrets에서 가져옴)
+      - name: Set up SSH private key
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
+          chmod 600 private_key.pem  # 권한 설정
+
       # 환경 변수 설정 (ECR URI 등)
       - name: Set environment variables
         run: |
-          echo "ECR_URI=${{ secrets.ECR_URI }}" >> $GITHUB_ENV  # GitHub Secrets에서 가져오기
+          echo "ECR_URI=${{ secrets.ECR_URI }}" >> $GITHUB_ENV
 
       # SSH 접속 및 스크립트 실행 단계
       - name: Copy and Run deploy.sh on EC2
@@ -26,3 +32,7 @@ jobs:
           
           echo "Running deploy.sh on EC2..."
           ssh -i private_key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} "chmod +x /home/ubuntu/deploy.sh && ECR_URI=${{ secrets.ECR_URI }} /home/ubuntu/deploy.sh"
+
+      # 보안: SSH 키 삭제
+      - name: Remove private_key.pem
+        run: rm -f private_key.pem
