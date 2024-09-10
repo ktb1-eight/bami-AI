@@ -23,7 +23,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_PRIVATE_KEY }}
           aws-region: ap-northeast-2  # 리전 설정
 
-      # AWS ECR에 로그인
+      # AWS ECR에 로그인 (프라이빗 레지스트리에 접근)
       - name: Log in to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
 
@@ -39,7 +39,7 @@ jobs:
           docker run -d --name test-container -p 8000:8000 bami-ai:latest
           sleep 10
           docker ps -a
-          # 로그를 출력하여 서버 상태 확인
+          # FastAPI 로그를 출력
           docker logs test-container
           # FastAPI POST 요청 테스트
           curl --fail -X POST http://localhost:8000/api/predict/ \
@@ -51,3 +51,13 @@ jobs:
         run: |
           docker stop test-container
           docker rm test-container
+
+      # 도커 이미지 태그 설정 (프라이빗 레지스트리에 푸시)
+      - name: Tag Docker image
+        run: |
+          docker tag bami-ai:latest ${{ secrets.ECR_URI }}:latest
+
+      # ECR에 이미지 푸시
+      - name: Push Docker image to Amazon ECR
+        run: |
+          docker push ${{ secrets.ECR_URI }}:latest
