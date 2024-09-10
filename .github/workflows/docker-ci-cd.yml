@@ -1,0 +1,63 @@
+name: Docker Build, Test, and Deploy to ECR
+
+on:
+  push:
+    branches:
+      - main
+      - feature/cicd
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 리포지토리 체크아웃
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      # AWS 자격 증명 설정 (리전 포함)
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_PUBLIC_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_PRIVATE_KEY }}
+          aws-region: ap-northeast-2  # 리전 설정
+
+      # AWS ECR에 로그인 (프라이빗 레지스트리에 접근)
+      - name: Log in to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
+
+      # 도커 이미지 빌드
+      - name: Build Docker image
+        run: |
+          cd LongTermTravelPlanner
+          docker build -t bami-ai:latest -f Dockerfile.prod .
+
+      # 빌드된 이미지를 기반으로 컨테이너 실행 및 테스트
+      - name: Run and Test Docker Container
+        run: |
+          docker run -d --name test-container -p 8000:8000 bami-ai:latest
+          sleep 10
+          docker ps -a
+          # FastAPI 로그를 출력
+          docker logs test-container
+          # FastAPI POST 요청 테스트
+          curl --fail -X POST http://localhost:8000/api/predict/ \
+            -H "Content-Type: application/json" \
+            -d '{"RESIDENCE_SGG_CD": 50, "GENDER": "남", "AGE_GRP": 50, "TRAVEL_NUM": 1, "TRAVEL_MOTIVE_1": 1, "MVMN_NM": "자가용", "COMPANION_AGE_GRP": 4.0, "REL_CD": 1.0}' || exit 1
+
+      # 컨테이너 종료 및 정리
+      - name: Clean up
+        run: |
+          docker stop test-container
+          docker rm test-container
+
+      # 도커 이미지 태그 설정 (프라이빗 레지스트리에 푸시)
+      - name: Tag Docker image
+        run: |
+          docker tag bami-ai:latest ${{ secrets.ECR_URI }}:latest
+
+      # ECR에 이미지 푸시
+      - name: Push Docker image to Amazon ECR
+        run: |
+          docker push ${{ secrets.ECR_URI }}:latest
