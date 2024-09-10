@@ -7,7 +7,6 @@ on:
       - main
 
 jobs:
-  # 전처리 작업
   preprocess_and_upload:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/deploy/data'
@@ -16,7 +15,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # 2. Python 설치
+      # 2. 현재 브랜치 확인
+      - name: Check branch
+        run: |
+          echo "Running on branch: ${GITHUB_REF#refs/heads/}"
+          if [[ "${GITHUB_REF#refs/heads/}" != "main" && "${GITHUB_REF#refs/heads/}" != "feature/cicd" && "${GITHUB_REF#refs/heads/}" != "deploy/data" ]]; then
+            echo "This workflow can only be run on the 'main', 'feature/cicd', or 'deploy/data' branches."
+            exit 1
+          fi
+
+      # 3. Python 설치
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
