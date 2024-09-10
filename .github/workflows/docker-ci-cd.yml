@@ -39,7 +39,10 @@ jobs:
           docker run -d --name test-container -p 8000:8000 bami-ai:latest
           sleep 10
           docker ps -a
-          curl --fail http://localhost:8000 || exit 1
+          curl --fail -X POST http://localhost:8000/api/predict/ \
+            -H "Content-Type: application/json" \
+            -d '{"RESIDENCE_SGG_CD": 50, "GENDER": "남", "AGE_GRP": 50, "TRAVEL_NUM": 1, "TRAVEL_MOTIVE_1": 1, "MVMN_NM": "자가용", "COMPANION_AGE_GRP": 4.0, "REL_CD": 1.0}' || exit 1
+
 
       # 테스트 성공 후 도커 이미지 태그 설정 (ECR 저장소 이름을 사용)
       - name: Tag Docker image
