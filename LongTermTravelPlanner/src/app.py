@@ -78,11 +78,11 @@ async def predict_travel_destination(user_input: UserInput):
 
         # 상위 8개 선택과 확률 추출
         top_k = 8
-        top_k_indices = np.argsort(-preds[0])[:top_k]
-        top_k_probs = -np.sort(-preds[0])[:top_k]
+        top_k_indices = np.argsort(-preds[0], axis=1)[:, :top_k]
+        top_k_probs = -np.sort(-preds[0], axis=1)[:, :top_k]
 
         # 예측된 인덱스를 원래 라벨로 변환
-        top_k_labels = label_encoder_travel.inverse_transform(top_k_indices)
+        top_k_labels = label_encoder_travel.inverse_transform(top_k_indices[0])
 
         # 결과 구성
         results = []
@@ -92,10 +92,11 @@ async def predict_travel_destination(user_input: UserInput):
             sido_nm = sgg_info['SIDO_NM'].values[0] if not sgg_info.empty else "정보 없음"
             sgg_nm = sgg_info['SGG_NM'].values[0] if not sgg_info.empty else "정보 없음"
             
-            # 지역 정보만 어펜드
+            # region의 값만 어펜드
             results.append(f"{sido_nm} {sgg_nm}")
 
-        return {"results": results}
+        return results
 
+    
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
