@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware  # CORS 처리를 위한 모듈
+from pydantic import BaseModel, Field
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -8,6 +9,15 @@ import os
 
 # FastAPI 인스턴스 생성
 app = FastAPI()
+
+# CORS 설정 추가
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 모든 도메인에서의 요청을 허용 (원하는 도메인을 지정할 수 있음)
+    allow_credentials=True,
+    allow_methods=["*"],  # 모든 HTTP 메서드 허용 (GET, POST, PUT 등)
+    allow_headers=["*"],  # 모든 헤더 허용
+)
 
 # 모델 및 인코더 파일 경로 설정
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -35,24 +45,26 @@ label_encoder_travel.classes_ = np.load(os.path.join(model_path, 'label_classes.
 # SGG_CD 데이터 로드
 sgg_cd_df = pd.read_csv(os.path.join(BASE_DIR,'config','SGG_CD.csv'))
 
-
-# 입력 데이터 스키마 정의 (Pydantic을 사용하여 유효성 검증)
+# 입력 데이터 스키마 정의 (Pydantic을 사용하여 유효성 검증, alias를 사용하여 대문자 필드를 처리)
 class UserInput(BaseModel):
-    residence_sgg_cd: int
-    gender: str
-    age_grp: int
-    travel_num: int
-    travel_motive_1: int
-    mvmn_nm: str
-    companion_age_grp: float
-    rel_cd: float
+    residence_sgg_cd: int = Field(..., alias="RESIDENCE_SGG_CD")
+    gender: str = Field(..., alias="GENDER")
+    age_grp: int = Field(..., alias="AGE_GRP")
+    travel_num: int = Field(..., alias="TRAVEL_NUM")
+    travel_motive_1: int = Field(..., alias="TRAVEL_MOTIVE_1")
+    mvmn_nm: str = Field(..., alias="MVMN_NM")
+    companion_age_grp: float = Field(..., alias="COMPANION_AGE_GRP")
+    rel_cd: float = Field(..., alias="REL_CD")
+
+    class Config:
+        allow_population_by_field_name = True  # 소문자 필드명을 허용
 
 # POST 요청을 처리하는 엔드포인트
 @app.post("/api/predict/")
 async def predict_travel_destination(user_input: UserInput):
     try:
         # 입력 데이터를 DataFrame으로 변환
-        user_df = pd.DataFrame([user_input.dict()])
+        user_df = pd.DataFrame([user_input.dict(by_alias=True)])  # by_alias=True로 alias 필드명을 사용
 
         # 범주형 데이터 인코딩
         user_df['GENDER'] = label_encoder_gender.transform(user_df['GENDER'])
@@ -88,4 +100,3 @@ async def predict_travel_destination(user_input: UserInput):
     
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-
