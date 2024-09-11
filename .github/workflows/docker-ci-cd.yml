@@ -44,7 +44,8 @@ jobs:
           # FastAPI POST 요청 테스트
           curl --fail -X POST http://localhost:8000/api/predict/ \
             -H "Content-Type: application/json" \
-            -d '{"RESIDENCE_SGG_CD": 50, "GENDER": "남", "AGE_GRP": 50, "TRAVEL_NUM": 1, "TRAVEL_MOTIVE_1": 1, "MVMN_NM": "자가용", "COMPANION_AGE_GRP": 4.0, "REL_CD": 1.0}' || exit 1
+            -d '{"residence_sgg_cd": 50, "gender": "남", "age_grp": 50, "travel_num": 1, "travel_motive_1": 1, "mvmn_nm": "자가용", "companion_age_grp": 4.0, "rel_cd": 1.0}' || exit 1
+
 
       # 컨테이너 종료 및 정리
       - name: Clean up
