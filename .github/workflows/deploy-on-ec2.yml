@@ -3,6 +3,7 @@ name: Deploy Docker Container on EC2
 on:
   push:
     branches:
+      - main
       - feature/cicd
 
 jobs:
