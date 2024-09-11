@@ -38,14 +38,14 @@ sgg_cd_df = pd.read_csv(os.path.join(BASE_DIR,'config','SGG_CD.csv'))
 
 # 입력 데이터 스키마 정의 (Pydantic을 사용하여 유효성 검증)
 class UserInput(BaseModel):
-    RESIDENCE_SGG_CD: int
-    GENDER: str
-    AGE_GRP: int
-    TRAVEL_NUM: int
-    TRAVEL_MOTIVE_1: int
-    MVMN_NM: str
-    COMPANION_AGE_GRP: float
-    REL_CD: float
+    residence_sgg_cd: int
+    gender: str
+    age_grp: int
+    travel_num: int
+    travel_motive_1: int
+    mvmn_nm: str
+    companion_age_grp: float
+    rel_cd: float
 
 # POST 요청을 처리하는 엔드포인트
 @app.post("/api/predict/")
