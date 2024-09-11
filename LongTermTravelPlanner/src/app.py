@@ -59,16 +59,18 @@ class UserInput(BaseModel):
     class Config:
         allow_population_by_field_name = True  # 소문자 필드명을 허용
 
+
 # POST 요청을 처리하는 엔드포인트
 @app.post("/api/predict/")
 async def predict_travel_destination(user_input: UserInput):
     try:
         # 입력 데이터를 DataFrame으로 변환
-        user_df = pd.DataFrame([user_input.dict(by_alias=True)])  # by_alias=True로 alias 필드명을 사용
+        # by_alias=False로 설정하여 소문자 필드명을 그대로 사용
+        user_df = pd.DataFrame([user_input.dict(by_alias=False)])
 
         # 범주형 데이터 인코딩
-        user_df['GENDER'] = label_encoder_gender.transform(user_df['GENDER'])
-        user_df['MVMN_NM'] = label_encoder_mvmn_nm.transform(user_df['MVMN_NM'])
+        user_df['gender'] = label_encoder_gender.transform(user_df['gender'])
+        user_df['mvmn_nm'] = label_encoder_mvmn_nm.transform(user_df['mvmn_nm'])
 
         # 데이터 표준화
         user_scaled = scaler.transform(user_df)
@@ -97,6 +99,5 @@ async def predict_travel_destination(user_input: UserInput):
 
         return results
 
-    
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
