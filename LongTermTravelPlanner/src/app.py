@@ -45,28 +45,23 @@ label_encoder_travel.classes_ = np.load(os.path.join(model_path, 'label_classes.
 # SGG_CD 데이터 로드
 sgg_cd_df = pd.read_csv(os.path.join(BASE_DIR,'config','SGG_CD.csv'))
 
-# 입력 데이터 스키마 정의 (Pydantic을 사용하여 유효성 검증, alias를 사용하여 대문자 필드를 처리)
+# 입력 데이터 스키마 정의 (대문자 키를 허용하지 않도록 설정)
 class UserInput(BaseModel):
-    residence_sgg_cd: int = Field(..., alias="RESIDENCE_SGG_CD")
-    gender: str = Field(..., alias="GENDER")
-    age_grp: int = Field(..., alias="AGE_GRP")
-    travel_num: int = Field(..., alias="TRAVEL_NUM")
-    travel_motive_1: int = Field(..., alias="TRAVEL_MOTIVE_1")
-    mvmn_nm: str = Field(..., alias="MVMN_NM")
-    companion_age_grp: float = Field(..., alias="COMPANION_AGE_GRP")
-    rel_cd: float = Field(..., alias="REL_CD")
-
-    class Config:
-        allow_population_by_field_name = True  # 소문자 필드명을 허용
-
+    residence_sgg_cd: int
+    gender: str
+    age_grp: int
+    travel_num: int
+    travel_motive_1: int
+    mvmn_nm: str
+    companion_age_grp: float
+    rel_cd: float
 
 # POST 요청을 처리하는 엔드포인트
 @app.post("/api/predict/")
 async def predict_travel_destination(user_input: UserInput):
     try:
         # 입력 데이터를 DataFrame으로 변환
-        # by_alias=False로 설정하여 소문자 필드명을 그대로 사용
-        user_df = pd.DataFrame([user_input.dict(by_alias=False)])
+        user_df = pd.DataFrame([user_input.dict()])
 
         # 범주형 데이터 인코딩
         user_df['gender'] = label_encoder_gender.transform(user_df['gender'])
