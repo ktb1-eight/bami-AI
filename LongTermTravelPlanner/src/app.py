@@ -57,7 +57,7 @@ class UserInput(BaseModel):
     rel_cd: float
 
 # POST 요청을 처리하는 엔드포인트
-@app.post("/api/predict/")
+@app.post("/api/predict")
 async def predict_travel_destination(user_input: UserInput):
     try:
         # 입력 데이터를 DataFrame으로 변환
